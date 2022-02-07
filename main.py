@@ -5,6 +5,7 @@ import secrets
 import string
 import threading
 import time
+import logging
 
 import pymongo as pymongo
 from flask import Flask, request, Response
@@ -39,8 +40,11 @@ def get_big_pack(quiz_id):
 
 
 def serve_app():
-    app.run(host='0.0.0.0', port=5000)
+    from waitress import serve
+    serve(app, host='0.0.0.0', port=5000)
 
+logger = logging.getLogger('waitress')
+logger.setLevel(logging.DEBUG)
 
 @app.route('/')
 def home():
@@ -225,6 +229,7 @@ def get_quiz_session():
     try:
         args = request.args
         join_code = args["join_code"]
+        print(request.headers.get('User-Agent'))
         return Response(json.dumps(quiz_sessions[join_code]), mimetype='application/json')
     except KeyError:
         return Response("PIN not found", mimetype='application/json', status=400)
