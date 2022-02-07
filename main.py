@@ -224,11 +224,10 @@ def create_quiz_session():
 def get_quiz_session():
     try:
         args = request.args
-        print(request.headers.get('User-Agent'))
         join_code = args["join_code"]
         return Response(json.dumps(quiz_sessions[join_code]), mimetype='application/json')
     except KeyError:
-        return Response("Key not found", mimetype='application/json', status=404)
+        return Response("PIN not found", mimetype='application/json', status=400)
 
 
 @app.route('/quizsessionexists')
