@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import create, { SetState, GetState } from "zustand";
 import { browserPersist } from ".";
 import { IAppState } from "types/app";

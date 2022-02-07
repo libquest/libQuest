@@ -16,8 +16,8 @@ const siteTitle = `libQuest`;
 const App = ({ Component, pageProps }: AppProps) => {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class">
-        <Header title={Component.title} />
+      <ThemeProvider attribute="class" enableSystem={false}>
+        <Header />
         <GlobalStyles />
         <Layout>
           <Component {...pageProps} />

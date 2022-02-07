@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "start": "next start --hostname 0.0.0.0 -p 4000",
-    "dev": "next dev"
+    "start": "next start --hostname 0.0.0.0 -p 4624",
+    "dev": "next dev --hostname 0.0.0.0 -p 4624"
   },
   "dependencies": {
     "@emotion/css": "^11.7.1",
