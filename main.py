@@ -9,6 +9,7 @@ import time
 import pymongo as pymongo
 from flask import Flask, request, Response
 from flask_sock import Sock
+from flask_cors import CORS
 
 app = Flask('app')
 sock = Sock(app)
@@ -23,6 +24,7 @@ client = pymongo.MongoClient(
     "mongodb+srv://SERVERONLY:oTLRlTgauH2Sm0M4@cluster0.cepv6.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 quizzes = client.libquest.quizzes
 
+CORS(app)
 
 @app.route('/uploadquiz')
 def add_big_pack():
@@ -220,9 +222,13 @@ def create_quiz_session():
 
 @app.route('/getquizsession')
 def get_quiz_session():
-    args = request.args
-    join_code = args["join_code"]
-    return Response(json.dumps(quiz_sessions[join_code]), mimetype='application/json')
+    try:
+        args = request.args
+        print(request.headers.get('User-Agent'))
+        join_code = args["join_code"]
+        return Response(json.dumps(quiz_sessions[join_code]), mimetype='application/json')
+    except KeyError:
+        return Response("Key not found", mimetype='application/json', status=404)
 
 
 @app.route('/quizsessionexists')
