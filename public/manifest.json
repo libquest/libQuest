@@ -1,0 +1,16 @@
+{
+  "name": "libQuest",
+  "short_name": "libQuest",
+  "scope": ".",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}
