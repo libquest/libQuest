@@ -6,8 +6,8 @@ module.exports = function (app) {
   app.use(function (err, req, res, next) {
     res.header("Access-Control-Allow-Headers", "x-access-token, Origin, Content-Type, Accept");
     if (err) {
-      res.status(400).json({ status: 400, error: "error while parsing data" });
-      console.log(chalk.yellow(`⚠ Error while parsing data`));
+      res.status(400).json({ status: 400, message: { error: "cannot parse passed data" } });
+      console.log(chalk.yellow(`  ⚠ Error while parsing data`));
     } else {
       next();
     }

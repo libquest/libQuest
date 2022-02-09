@@ -15,29 +15,34 @@ function generateJoinCode(n) {
 exports.createQuizSession = (req, res) => {
   require("crypto").randomBytes(20, function (err, buffer) {
     if (req.body.id == null) {
-      res.status(400).json({ status: 400, error: "quiz ID cannot be null" });
+      res.status(400).json({ status: 400, message: { error: "session cannot be null" } });
       console.log(chalk.red(`  ✖ Requested null quiz ID.`));
     } else {
       const blank = "null";
       const token = buffer.toString("hex");
       const join_code = generateJoinCode(7);
-      getBigPack(req.body.id).then(function (pack) {
-        res.status(200).json({
-          manager_key: token,
-          session: {
-            join_code: join_code,
-            big_pack: JSON.parse(pack),
-            users: {},
-            started: false,
-            availability: false,
-            question_index: blank,
-            responses: {},
-            globalping: blank,
-          },
+      getBigPack(req.body.id)
+        .then(function (pack) {
+          res.status(200).json({
+            manager_key: token,
+            session: {
+              join_code: join_code,
+              big_pack: JSON.parse(pack),
+              users: {},
+              started: false,
+              availability: false,
+              question_index: blank,
+              responses: {},
+              globalping: blank,
+            },
+          });
+          console.log(chalk.green(`  ✔ Started new quiz session (${req.body.id})`));
+          console.log(chalk.cyan(`  ℹ The join code is ${join_code}`));
+        })
+        .catch(function (err) {
+          res.status(200).json({ status: 400, message: { error: "cannot find session", id: req.body.id } });
+          console.log(chalk.red(`  ✖ Requested invalid quiz ID.`));
         });
-      });
-      console.log(chalk.green(`  ✔ Started new quiz session (${req.body.id})`));
-      console.log(chalk.cyan(`  ℹ The join code is ${join_code}`));
     }
   });
 };
