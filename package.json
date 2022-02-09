@@ -1,0 +1,36 @@
+{
+  "name": "gamespeed-api-auth",
+  "version": "1.0.5",
+  "main": "server.js",
+  "scripts": {
+    "dev": "sudo nodemon server.js --ignore test/",
+    "test": "echo \"Test: Success\""
+  },
+  "dependencies": {
+    "@linux123123/jspteroapi": "^2.7.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "chalk": "^4.1.2",
+    "cors": "^2.8.5",
+    "crypto-hash": "^2.0.1",
+    "express": "^4.17.1",
+    "express-http-proxy": "^1.6.3",
+    "figlet": "^1.5.2",
+    "hasha": "^5.2.2",
+    "http-proxy": "^1.18.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.1",
+    "netherrackjs": "^1.1.0",
+    "node-os-utils": "^1.3.5",
+    "nodemon": "^2.0.15",
+    "ora": "^6.0.1",
+    "os-utils": "0.0.14",
+    "perf_hooks": "0.0.1",
+    "ping": "^0.4.1",
+    "pretty-ms": "^7.0.1",
+    "prompt": "^1.2.0",
+    "proxy": "^1.0.2",
+    "require-times": "^1.1.0",
+    "sort-json-array": "^0.1.7"
+  }
+}
