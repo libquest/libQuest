@@ -12,7 +12,7 @@ from flask import Flask, request, Response
 from flask_sock import Sock
 from flask_cors import CORS
 
-app = Flask('app')
+app = Flask("app")
 sock = Sock(app)
 
 quiz_sessions = {}
@@ -22,17 +22,21 @@ manager_keys = {}
 player_keys = {}
 
 client = pymongo.MongoClient(
-    "mongodb+srv://SERVERONLY:oTLRlTgauH2Sm0M4@cluster0.cepv6.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    "mongodb+srv://SERVERONLY:oTLRlTgauH2Sm0M4@cluster0.cepv6.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+)
 quizzes = client.libquest.quizzes
 
 CORS(app)
 
-@app.route('/uploadquiz')
+
+@app.route("/uploadquiz")
 def add_big_pack():
     args = request.args
     pack = json.loads(args["pack"])
     author = args["author"]
-    quizzes.insert_one({"pack": json.dumps(pack), "author": author, "date": datetime.datetime.utcnow()})
+    quizzes.insert_one(
+        {"pack": json.dumps(pack), "author": author, "date": datetime.datetime.utcnow()}
+    )
 
 
 def get_big_pack(quiz_id):
@@ -40,30 +44,37 @@ def get_big_pack(quiz_id):
 
 
 def serve_app():
-    from waitress import serve
-    serve(app, host='0.0.0.0', port=5000)
+    app.run(host="0.0.0.0", port=5000)
 
-logger = logging.getLogger('waitress')
-logger.setLevel(logging.DEBUG)
 
-@app.route('/')
+@app.route("/")
 def home():
-    return 'libquest by john (stefan) o\'meara and sajjaad farzad'
+    return "libquest by john (stefan) o'meara and sajjaad farzad"
 
 
-@sock.route('/responseslengthfeed')
+@sock.route("/responseslengthfeed")
 def ws_responses_length(ws):
     join_code = ""
     while True:
         if join_code == "":
             join_code = str(ws.receive())
         else:
-            ws.send(len(quiz_sessions[join_code]["users"]) - sum(
-                map((-1).__eq__, [d['selected_answer_index'] for d in quiz_sessions[join_code]["users"].values()])))
+            ws.send(
+                len(quiz_sessions[join_code]["users"])
+                - sum(
+                    map(
+                        (-1).__eq__,
+                        [
+                            d["selected_answer_index"]
+                            for d in quiz_sessions[join_code]["users"].values()
+                        ],
+                    )
+                )
+            )
             time.sleep(0.05)
 
 
-@sock.route('/wsconnect')
+@sock.route("/wsconnect")
 def wsconnect(ws):
     authenticated = False
     user_id = ""
@@ -101,19 +112,27 @@ def wsconnect(ws):
         elif quiz_sessions[join_code]["availability"]:
             if text == "0":
                 quiz_sessions[join_code]["users"][user_id]["selected_answer_index"] = 0
-                quiz_sessions[join_code]["users"][user_id]["question_answered"] = time.time_ns() // 1_000_000
+                quiz_sessions[join_code]["users"][user_id]["question_answered"] = (
+                    time.time_ns() // 1_000_000
+                )
             elif text == "1":
                 quiz_sessions[join_code]["users"][user_id]["selected_answer_index"] = 1
-                quiz_sessions[join_code]["users"][user_id]["question_answered"] = time.time_ns() // 1_000_000
+                quiz_sessions[join_code]["users"][user_id]["question_answered"] = (
+                    time.time_ns() // 1_000_000
+                )
             elif text == "2":
                 quiz_sessions[join_code]["users"][user_id]["selected_answer_index"] = 2
-                quiz_sessions[join_code]["users"][user_id]["question_answered"] = time.time_ns() // 1_000_000
+                quiz_sessions[join_code]["users"][user_id]["question_answered"] = (
+                    time.time_ns() // 1_000_000
+                )
             elif text == "3":
                 quiz_sessions[join_code]["users"][user_id]["selected_answer_index"] = 3
-                quiz_sessions[join_code]["users"][user_id]["question_answered"] = time.time_ns() // 1_000_000
+                quiz_sessions[join_code]["users"][user_id]["question_answered"] = (
+                    time.time_ns() // 1_000_000
+                )
 
 
-@app.route('/setquestionavailability')
+@app.route("/setquestionavailability")
 def set_question_availability():
     args = request.args
     join_code = args["join_code"]
@@ -128,19 +147,16 @@ def set_question_availability():
         websocket_sendmsg(join_code, "*", "newquestion")
     else:
         websocket_sendmsg(join_code, "*", "reset")
-        quiz_sessions[join_code]["responses"] = {
-            0: 0,
-            1: 0,
-            2: 0,
-            3: 0
-        }
+        quiz_sessions[join_code]["responses"] = {0: 0, 1: 0, 2: 0, 3: 0}
         grade_responses(join_code, question_index)
     response = {"availability": quiz_sessions[join_code]["availability"]}
-    return Response(json.dumps(response), mimetype='application/json')
+    return Response(json.dumps(response), mimetype="application/json")
 
 
 def grade_responses(join_code, question_index):
-    question_answer_index = quiz_sessions[join_code]["big_pack"]["questions"][question_index]["answer_index"]
+    question_answer_index = quiz_sessions[join_code]["big_pack"]["questions"][
+        question_index
+    ]["answer_index"]
     users = quiz_sessions[join_code]["users"]
     for user_id in users:
         user = users[user_id]
@@ -149,9 +165,14 @@ def grade_responses(join_code, question_index):
             quiz_sessions[join_code]["responses"][selected_answer_index] += 1
         correct = question_answer_index == selected_answer_index
         if correct:
-            pointsawarded = 1000 - (
-                    quiz_sessions[join_code]["users"][user_id]["question_answered"] - quiz_sessions[join_code][
-                "question_started"]) / 10
+            pointsawarded = (
+                1000
+                - (
+                    quiz_sessions[join_code]["users"][user_id]["question_answered"]
+                    - quiz_sessions[join_code]["question_started"]
+                )
+                / 10
+            )
             if pointsawarded < 100:
                 pointsawarded = 100
             quiz_sessions[join_code]["users"][user_id]["points"] += pointsawarded
@@ -178,9 +199,10 @@ def grade_responses(join_code, question_index):
             x = list(quiz_sessions[join_code]["users"].values())[0]
             x["rank"] = i + 1
             sorted_users[list(quiz_sessions[join_code]["users"].keys())[0]] = x
-            del quiz_sessions[join_code]["users"][list(quiz_sessions[join_code]["users"].keys())[0]]
+            del quiz_sessions[join_code]["users"][
+                list(quiz_sessions[join_code]["users"].keys())[0]
+            ]
     quiz_sessions[join_code]["users"] = sorted_users
-
 
 
 def websocket_sendmsg(join_code, user_id, msg):
@@ -190,60 +212,71 @@ def websocket_sendmsg(join_code, user_id, msg):
         quiz_sessions[join_code]["users"][user_id]["message"] = msg
 
 
-@app.route('/getquestionstats')
+@app.route("/getquestionstats")
 def get_question_stats():
     args = request.args
     join_code = args["join_code"]
     question_index = int(args["index"])
     question_stats = {
-        "answer_index": quiz_sessions[join_code]["big_pack"]["questions"][question_index]["answer_index"],
-        "responses": quiz_sessions[join_code]["responses"]
+        "answer_index": quiz_sessions[join_code]["big_pack"]["questions"][
+            question_index
+        ]["answer_index"],
+        "responses": quiz_sessions[join_code]["responses"],
     }
-    return Response(json.dumps(question_stats), mimetype='application/json')
+    return Response(json.dumps(question_stats), mimetype="application/json")
 
 
-@app.route('/createquizsession')
+@app.route("/createquizsession")
 def create_quiz_session():
     args = request.args
     quiz_id = args["quiz_id"]
-    session = {"join_code": ''.join(random.choice(string.digits) for _ in range(7)),
-               "big_pack": get_big_pack(quiz_id),
-               "users": {},
-               "started": False,
-               "availability": False,
-               "question_index": 0,
-               "responses": {},
-               "globalping": ""}
+    session = {
+        "join_code": "".join(random.choice(string.digits) for _ in range(7)),
+        "big_pack": get_big_pack(quiz_id),
+        "users": {},
+        "started": False,
+        "availability": False,
+        "question_index": 0,
+        "responses": {},
+        "globalping": "",
+    }
     while session["join_code"] in quiz_sessions.keys():
-        session["join_code"] = ''.join(random.choice(string.digits) for _ in range(7))
+        session["join_code"] = "".join(random.choice(string.digits) for _ in range(7))
     quiz_sessions[session["join_code"]] = session
-    print("Started new quiz session (" + quiz_id + ") :: the join code is " + session["join_code"])
+    print(
+        "Started new quiz session ("
+        + quiz_id
+        + ") :: the join code is "
+        + session["join_code"]
+    )
     manager_key = secrets.token_hex(20)
     response = {"manager_key": manager_key, "session": session}
     manager_keys[session["join_code"]] = manager_key
-    return Response(json.dumps(response), mimetype='application/json')
+    return Response(json.dumps(response), mimetype="application/json")
 
 
-@app.route('/getquizsession')
+@app.route("/getquizsession")
 def get_quiz_session():
     try:
         args = request.args
         join_code = args["join_code"]
-        print(request.headers.get('User-Agent'))
-        return Response(json.dumps(quiz_sessions[join_code]), mimetype='application/json')
+        print(request.headers.get("User-Agent"))
+        return Response(
+            json.dumps(quiz_sessions[join_code]), mimetype="application/json"
+        )
     except KeyError:
-        return Response("PIN not found", mimetype='application/json', status=400)
+        return Response("PIN not found", mimetype="application/json", status=400)
 
 
-@app.route('/quizsessionexists')
+@app.route("/quizsessionexists")
 def quiz_session_exists():
     args = request.args
     join_code = args["join_code"]
     response = {"exists": join_code in quiz_sessions.keys()}
-    return Response(json.dumps(response), mimetype='application/json')
+    return Response(json.dumps(response), mimetype="application/json")
 
 
-@app.route('/startquizsession')
+@app.route("/startquizsession")
 def start_quiz_session():
     args = request.args
     join_code = args["join_code"]
@@ -251,10 +284,10 @@ def start_quiz_session():
     if manager_keys[join_code] == manager_key:
         quiz_sessions[join_code]["started"] = time.time_ns() // 1_000_000
     response = {"started": quiz_sessions[join_code]["started"]}
-    return Response(json.dumps(response), mimetype='application/json')
+    return Response(json.dumps(response), mimetype="application/json")
 
 
-@app.route('/joinquizsession')
+@app.route("/joinquizsession")
 def join_quiz_session():
     args = request.args
     join_code = args["join_code"]
@@ -268,19 +301,23 @@ def join_quiz_session():
             "points": 0,
             "streak": 0,
             "selected_answer_index": -1,
-            "message": ""
+            "message": "",
         }
         player_keys[player_key] = (id, join_code)
-        return Response(json.dumps({"id": id, "key": player_key, "session": quiz_sessions[join_code]}),
-                        mimetype='application/json')
+        return Response(
+            json.dumps(
+                {"id": id, "key": player_key, "session": quiz_sessions[join_code]}
+            ),
+            mimetype="application/json",
+        )
     response = {"error": "That name is taken, try something different."}
-    return Response(json.dumps(response), mimetype='application/json')
+    return Response(json.dumps(response), mimetype="application/json")
 
 
 def bg():
     print("libquest backend")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     threading.Thread(target=serve_app).start()
     bg()
