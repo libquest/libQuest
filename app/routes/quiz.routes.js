@@ -15,4 +15,5 @@ module.exports = function (app) {
 
   app.use(express.json());
   app.post("/quiz/session/create", controller.createQuizSession);
+  app.get("/quiz/session/get/:id", controller.getQuizSession);
 };

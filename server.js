@@ -1,4 +1,5 @@
 const dbConfig = require("./app/config/db.config");
+const commands = require("./app/util/commands");
 const prettyMilliseconds = require("pretty-ms");
 const bodyParser = require("body-parser");
 const { response } = require("express");
@@ -31,6 +32,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const db = require("./app/models");
 const Role = db.role;
+
+global.quiz_sessions = [];
+global.console_time_stamp = chalk.white(`\r(${new Date().toISOString()})`);
 
 function loadingAnimation(text = "Loading libQuest API daemon…", chars = ["⠙", "⠘", "⠰", "⠴", "⠤", "⠦", "⠆", "⠃", "⠋", "⠉"], delay = 100) {
   let x = 0;
@@ -112,9 +116,12 @@ app.listen(PORT, () => {
     getUserCount().then(function (user_count) {
       console.log(chalk.cyan(`  ℹ Registered users`) + `: ${user_count}`);
     });
-    getQuizCount().then(function (user_count) {
-      console.log(chalk.cyan(`  ℹ Created quizzes`) + `: ${user_count}\n`);
+    getQuizCount().then(function (quiz_count) {
+      console.log(chalk.cyan(`  ℹ Created quizzes`) + `: ${quiz_count}\n`);
     });
+    setTimeout(function () {
+      commands.stdin();
+    }, 1000);
   });
 });
 
