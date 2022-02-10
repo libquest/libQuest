@@ -122,7 +122,6 @@ main p {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  margin-bottom: 32px;
 }
 
 .error-code {
@@ -231,6 +230,18 @@ footer svg {
   font-size: 14px;
   line-height: 1.8;
   color: #0070f3;
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.mistake {
+  padding: 8pt 16pt;
+  border-radius: 5px;
+  border: 1px solid #35a600;
+  font-size: 14px;
+  line-height: 1.8;
+  margin-top: 16px;
+  color: #35a600;
 }
 
 @media (max-width: 500px) {
@@ -262,8 +273,5 @@ footer svg {
   }
   footer {
     display: none;
-  }
-  .note {
-    margin-top: 16px;
   }
 }

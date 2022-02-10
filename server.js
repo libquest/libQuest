@@ -71,13 +71,15 @@ app.get("/", (req, res) => {
     <title>403: FORBIDDEN</title>
     <div class="container">
       <main>
+      <div class="mistake"><div>If you got here by mistake, don't panic!</div><div>Just close this tab and carry on</div></div>   
         <p class="devinfo-container">
-          <span class="error-code"><strong>403</strong>: FORBIDDEN</span> <span class="devinfo-line">Code: <code>ACCESS_DENIED</code></span>
+          <span class="error-code"><strong>403</strong>: FORBIDDEN</span>
+          <span class="devinfo-line">Code: <code>ACCESS_DENIED</code></span>
           <span class="devinfo-line">Uptime: <code>${prettyMilliseconds(osutils.sysUptime() * 1000)}</code></span>
           <span class="devinfo-line">ID: <code>${serverID.replaceAt(6, "-").replaceAt(20, "-")}</code></span>
-        </p>
-        <a href="#">
-          <div class="note">Click here to learn more about this error.</div>
+        </p>        
+        <a href="#">     
+          <div class="note">If not, click here to learn more about this error.</div>
         </a>
       </main>
     </div>

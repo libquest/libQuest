@@ -1,12 +1,23 @@
 const stringSimilarity = require("string-similarity");
 const dbConfig = require("../config/db.config");
 const { spawn } = require("child_process");
+const numUtil = require("./numbers");
 const readline = require("readline");
 const chalk = require("chalk");
 const util = require("util");
 const os = require("os");
 
-const commands = ["get_users", "get_sessions", "get_quizzes", "db_info*", "get_quiz_session [join_code]", "clear", "help", "exit", "quit"];
+const commands = [
+  "get_user_count",
+  "quiz_sessions [-h] [-l] [-rm] [-c]",
+  "get_quiz_count",
+  "db_info",
+  "get_quiz_session [join_code]",
+  "clear",
+  "help",
+  "exit",
+  "quit",
+];
 
 function prompt() {
   return new Promise(function (resolve, reject) {
@@ -33,7 +44,7 @@ function prompt() {
             `\n\nA star (*) next to a name means that the command is disabled. \n\n` +
             commands
               .map((item) => `  ${item}`)
-              .slice(0, -2)
+              .slice(0, -3)
               .join("\n") +
             "\n  exit|quit"
         );
@@ -46,14 +57,40 @@ function prompt() {
           `connected to: mongodb+srv://${dbConfig.USERNAME}:${dbConfig.PASSWORD}@${dbConfig.HOST}/${dbConfig.DB}?retryWrites=true&w=majority`
         );
       } else if (commandHandler(1)) {
-        console.log(`Current sessions: 0`);
+        if (line.split(" ").pop() === "-l" || line.split(" ").pop() === "--list") {
+          if (quiz_sessions.length === 0) {
+            console.log(`no quiz sessions found`);
+          } else {
+            console.log(`sessions: ${quiz_sessions.length}`);
+            console.log(util.inspect(quiz_sessions, false, null, true));
+          }
+        } else if (line.split(" ").pop() === "-c" || line.split(" ").pop() === "--count") {
+          if (quiz_sessions.length === 0) {
+            console.log(`There are currently zero quiz sessions.`);
+          } else {
+            console.log(`There are currently ${numUtil.numToWords(quiz_sessions.length)}quiz sessions.`);
+          }
+        } else if (line.split(" ").pop() === "-rm" || line.split(" ").pop() === "--remove") {
+          while (quiz_sessions.length > 0) {
+            quiz_sessions.pop();
+          }
+          console.log(`Removed all current sessions`);
+        } else {
+          console.log(
+            `usage: quiz_sessions [options] <command>\n\nquiz_sessions -h, --help             all available commands and options\nquiz_sessions -l, --list             display all running sessions\nquiz_sessions -rm, --remove           remove a quiz session\nquiz_sessions -c, --count            count all running sessions`
+          );
+        }
       } else if (commandHandler(2)) {
         getQuizCount().then(function (quiz_count) {
           console.log(`Created quizzes: ${quiz_count}`);
         });
       } else if (commandHandler(4)) {
         var data = quiz_sessions.find((i) => i.join_code === line.split(" ").pop());
-        console.log(util.inspect(data, false, null, true));
+        if (data === undefined) {
+          console.log(`Unknown join code '${line.split(" ").pop()}'`);
+        } else {
+          console.log(util.inspect(data, false, null, true));
+        }
       } else if (commandHandler(5)) {
         console.clear();
       } else if (line.trim() === "") {
